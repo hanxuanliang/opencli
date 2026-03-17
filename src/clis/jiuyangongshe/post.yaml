@@ -1,0 +1,134 @@
+site: jiuyangongshe
+name: post
+description: 韭研公社文章内容（图文混排）
+domain: www.jiuyangongshe.com
+strategy: cookie
+browser: true
+args:
+  id:
+    type: string
+    default: "jn9svcevv8"
+    description: 文章ID
+pipeline:
+  - navigate: https://www.jiuyangongshe.com/a/${{ args.id }}
+  - evaluate: |
+      (async () => {
+        // 在浏览器页面内执行 fetch 获取 HTML
+        const res = await fetch(window.location.href, {
+          credentials: 'include'
+        });
+        const html = await res.text();
+        
+        // 从 HTML 提取作者
+        const authorMatch = html.match(/nickname:["\']([^"\']+)["\']/);
+        const author = authorMatch ? authorMatch[1] : '匿名';
+        
+        // 从 HTML 提取标题
+        const titleMatch = html.match(/<title>([^<]+)<\/title>/);
+        let title = titleMatch ? titleMatch[1].replace(/-韭研公社$/, '').trim() : '';
+        
+        // 从 HTML 提取时间
+        const timeMatch = html.match(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/);
+        const time = timeMatch ? timeMatch[1] : '';
+        
+        // 提取股票
+        const stocks = [];
+        // 从 h_source 区域提取
+        const stockMatch = html.match(/h_source[^>]*>[^<]*<div class="text"[^>]*>([^<]+)<\/div>/);
+        if (stockMatch) {
+          stocks.push(stockMatch[1].trim());
+        }
+        // 从 meta keywords 提取
+        const keywordsMatch = html.match(/<meta[^>]*keywords[^>]*content=["\']([^"\']+)["\']/);
+        if (keywordsMatch && keywordsMatch[1]) {
+          const keywordStocks = keywordsMatch[1].split(',').filter(s => s.trim());
+          for (const s of keywordStocks) {
+            if (s && !stocks.includes(s)) {
+              stocks.push(s);
+            }
+          }
+        }
+        
+        // 提取 NUXT 中的 content
+        let contentHtml = '';
+        const nuxtMatch = html.match(/content:["\']([^"\']+)["\']/);
+        if (nuxtMatch) {
+          contentHtml = nuxtMatch[1]
+            .replace(/\\u003C/g, '<')
+            .replace(/\\u003E/g, '>')
+            .replace(/\\u002F/g, '/')
+            .replace(/\\"/g, '"')
+            .replace(/\\n/g, '\n');
+        }
+        
+        // 生成 markdown
+        const mdLines = [
+          `# ${title}`,
+          '',
+          `> **作者**: ${author}`,
+          `> **时间**: ${time}`,
+          `> **原文**: https://www.jiuyangongshe.com/a/${{ args.id }}`,
+          '',
+          '---',
+          ''
+        ];
+        
+        // 解析 content HTML
+        if (contentHtml) {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = contentHtml;
+          
+          // 递归遍历所有节点
+          function traverse(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+              const text = node.textContent.trim();
+              if (text) {
+                mdLines.push(text);
+                mdLines.push('');
+              }
+            } else if (node.tagName === 'IMG') {
+              const src = node.getAttribute('src');
+              if (src) {
+                mdLines.push(`![图片](${src})`);
+                mdLines.push('');
+              }
+            } else if (node.tagName === 'A') {
+              const href = node.getAttribute('href');
+              const text = node.textContent.trim();
+              if (href && text) {
+                mdLines.push(`[${text}](${href})`);
+                mdLines.push('');
+              }
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+              for (const child of node.childNodes) {
+                traverse(child);
+              }
+            }
+          }
+          
+          traverse(tempDiv);
+        }
+        
+        if (stocks.length > 0) {
+          mdLines.push('');
+          mdLines.push('---');
+          mdLines.push(`**相关股票**: ${stocks.join(', ')}`);
+        }
+        
+        return {
+          id: '${{ args.id }}',
+          title: title,
+          author: author,
+          time: time,
+          stocks: stocks,
+          markdown: mdLines.join('\n')
+        };
+      })()
+  - limit: 1
+columns:
+  - id
+  - title
+  - author
+  - time
+  - stocks
+  - markdown

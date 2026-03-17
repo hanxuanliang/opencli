@@ -1,0 +1,68 @@
+site: jiuyangongshe
+name: user
+description: 韭研公社用户文章列表
+domain: www.jiuyangongshe.com
+strategy: cookie
+browser: true
+args:
+  user_id:
+    type: string
+    default: "4df747be1bf143a998171ef03559b517"
+    description: 用户ID
+pipeline:
+  - navigate: https://www.jiuyangongshe.com/u/${{ args.user_id }}
+  - evaluate: |
+      (async () => {
+        // 直接 fetch 获取 HTML
+        const res = await fetch('/u/${{ args.user_id }}', {
+          credentials: 'include',
+          headers: { 'Accept': 'text/html' }
+        });
+        const html = await res.text();
+        
+        const articles = [];
+        
+        // 提取所有时间
+        const timeRegex = /(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/g;
+        const times = [];
+        let tm;
+        while ((tm = timeRegex.exec(html)) !== null) {
+          times.push(tm[1]);
+        }
+        
+        // 提取标题
+        const titleRegex = /book-title[^>]*>\s*<span>([^<]+)<\/span>/g;
+        const titles = [];
+        let tmatch;
+        while ((tmatch = titleRegex.exec(html)) !== null) {
+          titles.push(tmatch[1].trim());
+        }
+        
+        // 提取文章ID
+        const idRegex = /href="\/a\/([a-zA-Z0-9]+)"/g;
+        const ids = [];
+        const seenIds = new Set();
+        let idm;
+        while ((idm = idRegex.exec(html)) !== null) {
+          if (!seenIds.has(idm[1])) {
+            seenIds.add(idm[1]);
+            ids.push(idm[1]);
+          }
+        }
+        
+        // 组合数据
+        const count = Math.min(titles.length, ids.length, times.length);
+        for (let i = 0; i < count; i++) {
+          articles.push({
+            title: titles[i],
+            public_time: times[i],
+            url: 'https://www.jiuyangongshe.com/a/' + ids[i]
+          });
+        }
+        
+        return articles;
+      })()
+columns:
+  - title
+  - public_time
+  - url
