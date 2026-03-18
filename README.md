@@ -143,7 +143,7 @@ npm install -g @jackwener/opencli@latest
 
 ## Built-in Commands
 
-**27 sites · 137 commands** — run `opencli list` for the live registry.
+**29 sites · 151 commands** — run `opencli list` for the live registry.
 
 | Site | Commands | Count | Mode |
 |------|----------|:-----:|------|
@@ -153,6 +153,8 @@ npm install -g @jackwener/opencli@latest
 | **bilibili** | `hot` `search` `me` `favorite` `history` `feed` `subtitle` `dynamic` `ranking` `following` `user-videos` | 11 | 🔐 Browser |
 | **codex** | `status` `send` `read` `new` `extract-diff` `model` `ask` `screenshot` `history` `export` | 10 | 🖥️ Desktop |
 | **chatwise** | `status` `new` `send` `read` `ask` `model` `history` `export` `screenshot` | 9 | 🖥️ Desktop |
+| **notion** | `status` `search` `read` `new` `write` `sidebar` `export` | 7 | 🖥️ Desktop |
+| **discord** | `status` `send` `read` `channels` `servers` `search` `members` | 7 | 🖥️ Desktop |
 | **v2ex** | `hot` `latest` `topic` `daily` `me` `notifications` | 6 | 🌐 / 🔐 |
 | **xueqiu** | `feed` `hot-stock` `hot` `search` `stock` `watchlist` | 6 | 🔐 Browser |
 | **antigravity** | `status` `send` `read` `new` `evaluate` | 5 | 🖥️ Desktop |

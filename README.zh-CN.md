@@ -144,7 +144,7 @@ npm install -g @jackwener/opencli@latest
 
 ## 内置命令
 
-**27 个站点 · 137 命令** — 运行 `opencli list` 查看完整注册表。
+**29 个站点 · 151 命令** — 运行 `opencli list` 查看完整注册表。
 
 | 站点 | 命令 | 数量 | 模式 |
 |------|------|:----:|------|
@@ -154,6 +154,8 @@ npm install -g @jackwener/opencli@latest
 | **bilibili** | `hot` `search` `me` `favorite` `history` `feed` `subtitle` `dynamic` `ranking` `following` `user-videos` | 11 | 🔐 浏览器 |
 | **codex** | `status` `send` `read` `new` `extract-diff` `model` `ask` `screenshot` `history` `export` | 10 | 🖥️ 桌面端 |
 | **chatwise** | `status` `new` `send` `read` `ask` `model` `history` `export` `screenshot` | 9 | 🖥️ 桌面端 |
+| **notion** | `status` `search` `read` `new` `write` `sidebar` `export` | 7 | 🖥️ 桌面端 |
+| **discord** | `status` `send` `read` `channels` `servers` `search` `members` | 7 | 🖥️ 桌面端 |
 | **v2ex** | `hot` `latest` `topic` `daily` `me` `notifications` | 6 | 🌐 / 🔐 |
 | **xueqiu** | `feed` `hot-stock` `hot` `search` `stock` `watchlist` | 6 | 🔐 浏览器 |
 | **antigravity** | `status` `send` `read` `new` `evaluate` | 5 | 🖥️ 桌面端 |
